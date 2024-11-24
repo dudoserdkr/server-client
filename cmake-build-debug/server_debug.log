@@ -1,0 +1,11 @@
+Server constructor called
+init_hints() called
+init_serverinfo() called
+bind_socket() called
+Attempting to bind socket
+Socket successfully bound to port 1488
+Server bound to IPv6 address: :::1488
+start_listen() called
+Server is listening on port 1488
+handle_connections() called
+Polling for events...
