@@ -28,7 +28,7 @@ protected:
 public:
     void connectToServer(const char *IP, const char *PORT);
     int sendMessage(const std::string &message);
-    int recieveMessage(char buffer[1024]);
+    int receiveMessage(char buffer[1024]);
     ~UnixSocketClient();
 };
 

@@ -8,7 +8,7 @@ public:
     virtual void connectToServer(const char *ip, const char *port) = 0;
     int getSocket() const { return sockfd; }
     virtual int sendMessage(const std::string &message) = 0;
-    virtual int recieveMessage(char buffer[1024]) = 0;
+    virtual int receiveMessage(char buffer[1024]) = 0;
     virtual ~SocketClient() = default;
 };
 

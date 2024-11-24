@@ -1,14 +1,13 @@
 #include "UnixSocketClient.h"
 #include <string>
 #include <iostream>
-#include <poll.h>
+#include <thread>
+#include <functional>
 
 using namespace std;
 
 class CrossPlatformClient {
     SocketClient *client;
-
-    pollfd fd;
 
     int sockfd;
     char *IP;
@@ -18,7 +17,7 @@ public:
     CrossPlatformClient(SocketClient *c, char *IP, char *PORT) : client(c), IP(IP), PORT(PORT) {
         connectToServer();
         initSockfd();
-        fd = {this->sockfd, POLLIN, 0};
+        start();
     }
 
     void connectToServer() {
@@ -33,37 +32,55 @@ public:
         client->sendMessage(message);
     }
 
-    void recieveFromServer() {
+    void receiveFromServer() {
         char buffer[1024];
-        int valread = client->recieveMessage(buffer);
+        int valread = client->receiveMessage(buffer);
 
         if (valread == 0) {
             cout << "Connection closed" << endl;
-        }
-        else {
+            closeConnection();
+            exit(0);
+        } else {
             cout << "Received from server: " << buffer << endl;
         }
     }
 
-    void start_handlers() {
+    // region Handlers
+    void sendHandler() {
+        string message;
         while (true) {
-            if (poll(&fd, 1, -1) == -1) {
-                cerr << "Error while poll()" << strerror(errno) << endl;
-                exit(3);
-            }
-            if (fd.revents & POLLIN) {
-                recieveFromServer();
-            }
-            else {
-                string message;
+            getline(cin, message);
 
-                getline(cin, message);
+            if (message == "exit") {
+                closeConnection();
+                exit(0);
+            }
 
-                if (!message.empty()) {
-                    sendToServer(message);
-                }
+            if (!message.empty()) {
+                sendToServer(message);
             }
         }
+    }
+
+    void receiveHandler() {
+        while (true) {
+            receiveFromServer();
+        }
+    }
+    // endregion
+
+    void closeConnection() {
+        if (this->sockfd > 0) {
+            close(this->sockfd);
+        }
+    }
+
+    void start() {
+        thread thread1(bind(&CrossPlatformClient::sendHandler, this));
+        thread thread2(bind(&CrossPlatformClient::receiveHandler, this));
+
+        thread1.join();
+        thread2.join();
     }
 
     ~CrossPlatformClient() {
@@ -71,7 +88,4 @@ public:
             close(this->sockfd);
         }
     }
-
-
-
 };

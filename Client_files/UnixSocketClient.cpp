@@ -96,7 +96,7 @@ int UnixSocketClient::sendMessage(const string &message) {
     return send(this->sockfd, message.c_str(), message.size(), 0);
 }
 
-int UnixSocketClient::recieveMessage(char buffer[1024]) {
+int UnixSocketClient::receiveMessage(char buffer[1024]) {
     int valread = read(this->sockfd, buffer, sizeof(buffer)); //TODO: може бути прикол з довжиною буфера
     return valread;
 }
