@@ -1,49 +1,82 @@
 #include <iostream>
-#include <string.h>
 #include <sys/socket.h>
-#include <arpa/inet.h>
+#include <netdb.h>
 #include <unistd.h>
+#include <arpa/inet.h>
 
-#define PORT 8080
-#define BUFFER_SIZE 1024
+using namespace std;
 
-int main() {
-    int sock = 0;
-    struct sockaddr_in serv_addr;
-    char buffer[BUFFER_SIZE] = {0};
+class UnixClient {
+    int sockfd;
+    char *IP{};
+    char *PORT{};
+
+    char serveraddress[INET6_ADDRSTRLEN];
+    char buffer[1024] = {0};
     const char *hello = "Hello from client";
 
-    // Creating socket file descriptor
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        std::cerr << "Socket creation error" << std::endl;
-        return -1;
+    void *get_in_addr(sockaddr *sa) {
+        if (sa->sa_family == AF_INET) {
+            return &(((sockaddr_in*)sa)->sin_addr);
+        }
+        return &(((sockaddr_in6*)sa)->sin6_addr);
     }
 
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(PORT);
+    void init_hints() {
+        addrinfo hints;
+        memset(&hints, 0 , sizeof(hints));
+        hints.ai_family = AF_INET;
+        hints.ai_socktype = SOCK_STREAM;
 
-    // Convert IPv4 and IPv6 addresses from text to binary form
-    if (inet_pton(AF_INET, "0.0.0.0", &serv_addr.sin_addr) <= 0) {
-        std::cerr << "Invalid address/ Address not supported" << std::endl;
-        return -1;
+        init_getaddrinfo(hints);
     }
 
-    // Connect to the server
-    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
-        std::cerr << "Connection failed" << std::endl;
-        return -1;
+
+    void init_getaddrinfo(addrinfo &hints) {
+        addrinfo *result;
+        int status = getaddrinfo(this->IP, this->PORT, &hints, &result);
+
+        if (status != 0) {
+            cerr << "Error in getaddrinfo: " << gai_strerror(status) << endl;
+            exit(1); //TODO change to throw
+        }
+        connect_to_server(result);
     }
 
-    // Send message to server
-    send(sock, hello, strlen(hello), 0);
-    std::cout << "Hello message sent" << std::endl;
+    void connect_to_server(addrinfo *result) {
+        addrinfo *p;
 
-    // Read server response
-    int valread = read(sock, buffer, BUFFER_SIZE);
-    std::cout << "Received from server: " << buffer << std::endl;
+        for (p = result; p != nullptr; p = p->ai_next) {
+            this->sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+            if (this->sockfd == -1) {
+                continue;
+            }
+            if (connect(this->sockfd, p->ai_addr, p->ai_addrlen) == -1) {
+                close(this->sockfd);
+                continue;
+            }
+            break;
+        }
+        if (p == nullptr) {
+            cerr << "Client: error to connect to server: " << strerror(errno) << endl;
+            exit(2);
+        }
+        inet_ntop(p->ai_family, get_in_addr((sockaddr *)p->ai_addr), serveraddress, sizeof(serveraddress));
 
-    // Close the socket
-    close(sock);
+        cout << "Client: conneting to " << serveraddress << endl;
 
-    return 0;
+        freeaddrinfo(result);
+    }
+
+public:
+    UnixClient(char *ip, char *port) : IP(ip), PORT(port) {
+        init_hints();
+    }
+};
+
+int main(int argc, char *argv[]) {
+    if (argc != 3) {
+        return -1;
+    }
+    UnixClient uc(argv[1], argv[2]);
 }
