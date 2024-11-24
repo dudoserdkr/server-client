@@ -11,6 +11,8 @@
 
 using namespace std;
 
+#define BUFFER_SIZE 1024
+
 class Server {
 
     string PORT;
@@ -18,6 +20,9 @@ class Server {
 
     int BACKLOG;
     int sockfd;
+
+    char buffer[BUFFER_SIZE] = {0};
+    char hello[100] = "Hello from server";
 
     addrinfo hints{};
 
@@ -95,7 +100,7 @@ class Server {
         else {
             sockaddr_in6 *addr_in6 = (sockaddr_in6*)&addr;
             inet_ntop(AF_INET, &(addr_in6->sin6_addr), ip_str, sizeof(ip_str));
-            cout << message << " IPv6 adress: " << ip_str << ":" << ntohs(addr_in6->sin6_port) << endl;
+            cout << message << " IPv6 adress: " << ip_str << " " << ntohs(addr_in6->sin6_port) << endl;
         }
     }
 
@@ -142,6 +147,20 @@ public:
                         this->fds.push_back({new_socket, POLLIN, 0});
                     }
                 }
+                else if (sock_info.revents & POLLIN) {
+                    int valread = read(sock_info.fd, buffer, BUFFER_SIZE);
+
+                    if (valread == 0) {
+                        cout << "Connection closed" << endl;
+                        close(sock_info.fd);
+                        fds.erase(fds.begin() + i);
+                    }
+
+                    else {
+                        cout << "Received from client: " << buffer << endl;
+                        send(sock_info.fd, hello, strlen(hello), 0);
+                    }
+                }
             }
         }
     }
@@ -150,5 +169,5 @@ public:
 };
 
 int main() {
-    Server serv("45678", 5);
+    Server serv("8080", 5);
 }

@@ -1,0 +1,29 @@
+# Ignore build directories
+cmake-build-*/
+
+# Ignore compiled binary files
+*.o
+*.out
+*.exe
+
+# Ignore temporary editor files
+*.swp
+*.swo
+*~
+
+# Ignore CLion project files
+.idea/
+*.iml
+
+# Ignore CMake generated files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Ignore log or temporary files
+*.log
+*.tmp
+
+# Ignore test executable
+test

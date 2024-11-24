@@ -1,84 +1,49 @@
 #include <iostream>
-#include <string>
-#include <cstring>
-#include <sys/types.h>
+#include <string.h>
 #include <sys/socket.h>
-#include <netdb.h>
-#include <unistd.h>
 #include <arpa/inet.h>
-#include <poll.h>
-#include <vector>
+#include <unistd.h>
 
-using namespace std;
+#define PORT 8080
+#define BUFFER_SIZE 1024
 
-class Client {
-    addrinfo hints{};
+int main() {
+    int sock = 0;
+    struct sockaddr_in serv_addr;
+    char buffer[BUFFER_SIZE] = {0};
+    const char *hello = "Hello from client";
 
-    int sockfd;
-
-    string IP;
-    string PORT;
-
-    void init_serverinfo() {
-        addrinfo *result_of_getaddr;
-
-        int status = getaddrinfo(IP.c_str(), PORT.c_str(), &hints, &result_of_getaddr);
-        if (status != 0) {
-            cerr << "Problem in init_serverinfo: " << gai_strerror(status) << endl;
-            exit(1);
-        }
-
-        connect_socket(result_of_getaddr);
-
-    }
-
-    void connect_socket(addrinfo *result_of_getaddr) {
-        addrinfo *p;
-        for (p = result_of_getaddr; p != nullptr; p = p->ai_next) {
-            this->sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
-
-            if (this->sockfd == -1) {
-                continue;
-            }
-
-            if (connect(this->sockfd, p->ai_addr, p->ai_addrlen) == -1) {
-                close(this->sockfd);
-                continue;
-            }
-
-            break;
-        }
-
-        if (p == nullptr) {
-            cerr << "Error to connect socket: " << strerror(errno) << endl;
-            freeaddrinfo(result_of_getaddr);
-            exit(2);
-        }
-
-        freeaddrinfo(result_of_getaddr);
-
-        cout << "Socket successfully connected to port " << PORT << endl;
-    }
-
-public:
-    Client(string IP, string PORT) : IP(IP), PORT(PORT) {
-        init_serverinfo();
-    }
-};
-
-int main(int argc, char* argv[]) {
-    if (argc != 3) {
-        cerr << "No args";
+    // Creating socket file descriptor
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        std::cerr << "Socket creation error" << std::endl;
         return -1;
     }
 
-    string IP = argv[1];
-    string PORT = argv[2];
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(PORT);
 
-    Client cl(IP, PORT);
-
-    while (true) {
-
+    // Convert IPv4 and IPv6 addresses from text to binary form
+    if (inet_pton(AF_INET, "0.0.0.0", &serv_addr.sin_addr) <= 0) {
+        std::cerr << "Invalid address/ Address not supported" << std::endl;
+        return -1;
     }
 
+    // Connect to the server
+    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
+        std::cerr << "Connection failed" << std::endl;
+        return -1;
+    }
+
+    // Send message to server
+    send(sock, hello, strlen(hello), 0);
+    std::cout << "Hello message sent" << std::endl;
+
+    // Read server response
+    int valread = read(sock, buffer, BUFFER_SIZE);
+    std::cout << "Received from server: " << buffer << std::endl;
+
+    // Close the socket
+    close(sock);
+
+    return 0;
 }
