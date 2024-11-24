@@ -3,6 +3,8 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <string.h>
+#include <poll.h>
 
 using namespace std;
 
@@ -10,6 +12,8 @@ class UnixClient {
     int sockfd;
     char *IP{};
     char *PORT{};
+
+    pollfd fd;
 
     char serveraddress[INET6_ADDRSTRLEN];
     char buffer[1024] = {0};
@@ -63,14 +67,48 @@ class UnixClient {
         }
         inet_ntop(p->ai_family, get_in_addr((sockaddr *)p->ai_addr), serveraddress, sizeof(serveraddress));
 
-        cout << "Client: conneting to " << serveraddress << endl;
+        cout << "Client: conneting to " << serveraddress << ":" << PORT << endl;
 
         freeaddrinfo(result);
+    }
+
+    void send_hello_to_server() {
+        send(this->sockfd, hello, strlen(hello), 0);
+        cout << "Client: Hello message sent" << endl;
+    }
+
+    void send_message_to_server(string message) {
+        send(this->sockfd, message.c_str(), message.size(), 0);
+        cout << "Client: Message " << message << "sent" << endl;
     }
 
 public:
     UnixClient(char *ip, char *port) : IP(ip), PORT(port) {
         init_hints();
+        fd = {this->sockfd, POLLIN, 0};
+        send_hello_to_server();
+        handle_messages();
+    }
+
+    void handle_messages() {
+        while (true) {
+            if(poll(&fd, 1, -1) == -1) {
+                cerr << "Error while poll()" << strerror(errno) << endl;
+                exit(3);
+            }
+            if (fd.revents & POLLIN) {
+                int valread = read(this->sockfd, buffer, 1024);
+                cout << buffer << endl;
+            }
+
+            string message;
+
+            getline(cin, message);
+
+            if(!message.empty()) {
+                send_message_to_server(message);
+            }
+        }
     }
 };
 

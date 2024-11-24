@@ -158,7 +158,7 @@ public:
 
                     else {
                         cout << "Received from client: " << buffer << endl;
-                        send(sock_info.fd, hello, strlen(hello), 0);
+                        send(sock_info.fd, buffer, strlen(buffer), 0);
                     }
                 }
             }
