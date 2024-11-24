@@ -2,8 +2,11 @@
 #include <iostream>
 #include <cstring>
 #include <stdexcept>
+#include <unistd.h>
 
 using namespace std;
+
+
 
 // region static methods
 void *UnixSocketClient::get_in_addr(sockaddr *sa) {
@@ -96,8 +99,8 @@ int UnixSocketClient::sendMessage(const string &message) {
     return send(this->sockfd, message.c_str(), message.size(), 0);
 }
 
-int UnixSocketClient::receiveMessage(char buffer[1024]) {
-    int valread = read(this->sockfd, buffer, sizeof(buffer)); //TODO: може бути прикол з довжиною буфера
+int UnixSocketClient::receiveMessage(char buffer[1024], size_t buffer_size) {
+    int valread = read(this->sockfd, buffer, buffer_size); //TODO: може бути прикол з довжиною буфера
     return valread;
 }
 

@@ -10,11 +10,11 @@ class CrossPlatformClient {
     SocketClient *client;
 
     int sockfd;
-    char *IP;
-    char *PORT;
+    const char *IP;
+    const char *PORT;
 
 public:
-    CrossPlatformClient(SocketClient *c, char *IP, char *PORT) : client(c), IP(IP), PORT(PORT) {
+    CrossPlatformClient(SocketClient *c, const char *IP, const char *PORT) : client(c), IP(IP), PORT(PORT) {
         connectToServer();
         initSockfd();
         start();
@@ -34,7 +34,7 @@ public:
 
     void receiveFromServer() {
         char buffer[1024];
-        int valread = client->receiveMessage(buffer);
+        int valread = client->receiveMessage(buffer, sizeof(buffer));
 
         if (valread == 0) {
             cout << "Connection closed" << endl;
@@ -89,3 +89,10 @@ public:
         }
     }
 };
+
+int main() {
+    const char *IP = "0.0.0.0";
+    const char *PORT = "8080";
+
+    CrossPlatformClient client(new UnixSocketClient(), IP, PORT);
+}
