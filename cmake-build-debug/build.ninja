@@ -55,6 +55,12 @@ build CMakeFiles/server.dir/Server_files/ServerClient.cpp.o: CXX_COMPILER__serve
   OBJECT_DIR = CMakeFiles/server.dir
   OBJECT_FILE_DIR = CMakeFiles/server.dir/Server_files
 
+build CMakeFiles/server.dir/Server_files/ServerSocket.cpp.o: CXX_COMPILER__server_unscanned_Debug /Users/ivyurievich/CLionProjects/server/Server_files/ServerSocket.cpp || cmake_object_order_depends_target_server
+  DEP_FILE = CMakeFiles/server.dir/Server_files/ServerSocket.cpp.o.d
+  FLAGS = -g -std=gnu++17 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX15.0.sdk -fcolor-diagnostics
+  OBJECT_DIR = CMakeFiles/server.dir
+  OBJECT_FILE_DIR = CMakeFiles/server.dir/Server_files
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target server
@@ -63,7 +69,7 @@ build CMakeFiles/server.dir/Server_files/ServerClient.cpp.o: CXX_COMPILER__serve
 #############################################
 # Link the executable server
 
-build server: CXX_EXECUTABLE_LINKER__server_Debug CMakeFiles/server.dir/Server_files/ServerClient.cpp.o
+build server: CXX_EXECUTABLE_LINKER__server_Debug CMakeFiles/server.dir/Server_files/ServerClient.cpp.o CMakeFiles/server.dir/Server_files/ServerSocket.cpp.o
   FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX15.0.sdk
   OBJECT_DIR = CMakeFiles/server.dir
   POST_BUILD = :

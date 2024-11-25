@@ -90,9 +90,14 @@ public:
     }
 };
 
-int main() {
-    const char *IP = "0.0.0.0";
-    const char *PORT = "8080";
+int main(int argc, char *argv[]) {
+    if (argc != 3) {
+        const char *IP = "0.0.0.0";
+        const char *PORT = "1701";
+    }
+
+    const char *IP = argv[1];
+    const char *PORT = argv[2];
 
     CrossPlatformClient client(new UnixSocketClient(), IP, PORT);
 }

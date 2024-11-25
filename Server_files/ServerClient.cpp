@@ -1,5 +1,7 @@
 #include "ServerSocket.h"
 #include <poll.h>
+#include <cstring>
+#include <cstdio>
 
 class ServerClient {
     ServerSocket *server;
@@ -41,11 +43,30 @@ public:
             fds.erase(fds.begin() + index_of_skipped_user);
         }
         else {
+            const char *prepend_format = "[Client %d]: ";
+            prepend_to_buffer(buffer, bufferSize, prepend_format, index_of_skipped_user);
             cout << "Recieved: " << buffer << endl;
             send2users(buffer, bufferSize, index_of_skipped_user);
         }
     }
 
+    void prepend_to_buffer(char* buffer, size_t buffer_size, const char* prepend_format, int client_id) { // TODO: Сделать эту функцию нормальной
+        char prepend[256]; // Временный буфер для отформатированной строки
+        snprintf(prepend, sizeof(prepend), prepend_format, client_id);
+
+        size_t prepend_len = strlen(prepend);
+        size_t buffer_len = strlen(buffer);
+
+        // Если итоговый размер превышает размер буфера
+        if (prepend_len + buffer_len >= buffer_size) {
+            size_t available_space = buffer_size - prepend_len - 1;
+            memmove(buffer + prepend_len, buffer, available_space);
+            buffer[prepend_len + available_space] = '\0'; // Завершаем строку
+        } else {
+            memmove(buffer + prepend_len, buffer, buffer_len + 1); // Сдвигаем текущий текст
+        }
+        memcpy(buffer, prepend, prepend_len); // Копируем добавку в начало
+    }
 
     void hande_connections() {
         while (true) {
@@ -75,11 +96,15 @@ public:
             }
         }
     }
-
 };
 
-int main() {
-    const char *IP = "0.0.0.0";
-    const char *PORT = "8080";
+int main(int argc, char *argv[]) {
+    if (argc != 3) {
+        const char *IP = "0.0.0.0";
+        const char *PORT = "1701";
+    }
+
+    const char *IP = argv[1];
+    const char *PORT = argv[2];
     ServerClient(IP, PORT, 10);
 }

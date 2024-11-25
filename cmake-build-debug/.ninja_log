@@ -1,12 +1,13 @@
 # ninja log v6
 3	300	1732483415569476425	CMakeFiles/server.dir/Client_files/UnixSocketClient_test.cpp.o	f4704e24827a8b99
-0	36	1732491321787740733	build.ninja	e4fab20dcf8699a4
-6	445	1732418099774702656	CMakeFiles/server.dir/test.cpp.o	958d909b132316b4
-3	39	1732376096281847471	CMakeFiles/server.dir/showip.c.o	25bdd8d14c8b4823
 0	311	1732490432596233238	CMakeFiles/server.dir/Client_files/CrossPlatformClient.cpp.o	d126f16b66ff9287
 0	314	1732483443832724396	CMakeFiles/server.dir/server.cpp.o	ad1049ba5423ede9
+0	36	1732499107538861467	build.ninja	e4fab20dcf8699a4
 3	313	1732483415569990349	CMakeFiles/server.dir/Client_files/UnixSocketClient.cpp.o	db87e61a919a5597
 3	479	1732490138295588879	CMakeFiles/server.dir/Server_files_/ServerSocket.cpp.o	1d43df51ca2a5ac7
 314	343	1732483444146340931	server	cfdde0225c3787e6
+2	314	1732497097313542398	CMakeFiles/server.dir/Server_files/ServerClient.cpp.o	531059fea806b913
 4	415	1731867340626684751	CMakeFiles/server.dir/client.cpp.o	dedad981e3fe993
+6	445	1732418099774702656	CMakeFiles/server.dir/test.cpp.o	958d909b132316b4
 3	474	1732490138295436255	CMakeFiles/server.dir/Server_files_/ServerClient.cpp.o	8597ba914c04ca7f
+3	39	1732376096281847471	CMakeFiles/server.dir/showip.c.o	25bdd8d14c8b4823

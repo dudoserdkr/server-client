@@ -20,6 +20,8 @@ class ServerSocket {
     void bind_socket(addrinfo *result_of_getaddr);
     void start_listen();
     void print_bound_adress(string message = "Server socket is bound to") const;
+    void sigchld_handler(int s);
+    void kill_needless_processes();
 public:
     ServerSocket(const char* IP, const char* PORT, const int backlog);
     int runSocket();
