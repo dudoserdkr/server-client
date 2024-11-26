@@ -78,12 +78,33 @@ void ServerSocket::print_connection(sockaddr_storage addr, string &message) {
     }
 }
 
+void ServerSocket::kill_needless_processes() {
+    struct sigaction sa{};
+    sa.sa_handler = sigchld_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART;
+    if (sigaction(SIGCHLD, &sa, nullptr) == -1) {
+        cerr << "Error setting up SIGCHLD handler: " << strerror(errno) << endl;
+        exit(1);
+    }
+}
+
+void ServerSocket::sigchld_handler([[maybe_unused]] int s) {
+    while (waitpid(-1, nullptr, WNOHANG) > 0);
+}
+
 ServerSocket::ServerSocket(const char* IP, const char* PORT, const int backlog) : IP(IP), PORT(PORT), backlog(backlog) {}
+ServerSocket::~ServerSocket() {
+    if (this->sockfd > 0) {
+        close(this->sockfd);
+    }
+}
 
 int ServerSocket::runSocket() {
     addrinfo hints = init_hints();
     addrinfo *result_of_getaddr = init_getaddrinfo(hints);
     bind_socket(result_of_getaddr);
     start_listen();
+    kill_needless_processes();
     return this->sockfd;
 }
