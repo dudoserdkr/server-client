@@ -2,13 +2,15 @@
 #define SOCKETCLIENT_H
 #include <string>
 
+const size_t BUFFER_SIZE = 1024;
+
 class SocketClient {
 public:
     int sockfd;
-    virtual void connectToServer(const char *ip, const char *port) = 0;
+    virtual void connectToServer(const char *IP, const char *PORT) = 0;
     int getSocket() const { return sockfd; }
-    virtual int sendMessage(const std::string &message) = 0;
-    virtual int receiveMessage(char buffer[1024], size_t bufferSize) = 0;
+    virtual int sendMessage(const std::wstring &message) = 0;
+    virtual int receiveMessage(wchar_t buffer[BUFFER_SIZE]) = 0;
     virtual ~SocketClient() = default;
 };
 

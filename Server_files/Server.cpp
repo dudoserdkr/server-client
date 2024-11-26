@@ -1,7 +1,6 @@
 #include "ServerSocket.h"
 #include "ServerClient.h"
 #include <cstring>
-#include <cstdio>
 
 class Server {
     ServerSocket *server;
@@ -29,19 +28,19 @@ public:
 
 
     void readMsgFromUser(int index_of_skipped_client) {
-        char buffer[1024] = {0};
+        wchar_t buffer[BUFFER_SIZE] = {0};
 
-        int skipped_user_socket = fds[index_of_skipped_client].fd;
+        int skipped_client_socket = fds[index_of_skipped_client].fd;
 
-        int valread = this->client->receiveFromClient(skipped_user_socket, buffer);
+        int valread = this->client->receiveFromClient(skipped_client_socket, buffer);
 
         if (valread == 0) {
             cout << "Client " << index_of_skipped_client << " has closed connection" << endl;
-            close(skipped_user_socket);
+            close(skipped_client_socket);
             fds.erase(fds.begin() + index_of_skipped_client);
         }
         else {
-            cout << "Recieved: " << buffer << endl;
+            wcout << L"Recieved: " << buffer << endl;
             this->client->sendToClientsExceptOne(fds, buffer, index_of_skipped_client);
         }
     }
@@ -55,10 +54,13 @@ public:
             for (int i = 0; i < fds.size(); i++) {
                 pollfd user_pollfd = fds[i];
                 if (user_pollfd.fd == this->sockfd && (user_pollfd.revents & POLLIN)) {
-                        int new_socket = this->client->acceptClient();
+                    int new_socket = this->client->acceptClient();
 
-                        if (new_socket != -1) {
-                            this->fds.push_back({new_socket, POLLIN, 0});
+                    if (new_socket != -1) {
+                        this->fds.push_back({new_socket, POLLIN, 0});
+                    }
+                    else {
+                        cout << "Error while accepting new connection" << strerror(errno) << endl;
                     }
                 }
                 else if (user_pollfd.revents & POLLIN) {
@@ -70,12 +72,15 @@ public:
 };
 
 int main(int argc, char *argv[]) {
+    const char *IP = argv[1];
+    const char *PORT = argv[2];
     if (argc != 3) {
         const char *IP = "0.0.0.0";
         const char *PORT = "1701";
     }
+    else {
 
-    const char *IP = argv[1];
-    const char *PORT = argv[2];
+    }
+
     Server(IP, PORT, 10);
 }

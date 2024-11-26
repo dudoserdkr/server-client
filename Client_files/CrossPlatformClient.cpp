@@ -28,30 +28,31 @@ public:
         this->sockfd = client->getSocket();
     }
 
-    void sendToServer(string &message) {
+    void sendToServer(wstring &message) {
         client->sendMessage(message);
     }
 
     void receiveFromServer() {
-        char buffer[1024];
-        int valread = client->receiveMessage(buffer, sizeof(buffer));
+        wchar_t buffer[BUFFER_SIZE] = {0};
+
+        int valread = client->receiveMessage(buffer);
 
         if (valread == 0) {
             cout << "Connection closed" << endl;
             closeConnection();
             exit(0);
         } else {
-            cout << "Received from server: " << buffer << endl;
+            wcout << L"Received from server: " << buffer << endl;
         }
     }
 
     // region Handlers
     void sendHandler() {
-        string message;
+        wstring message;
         while (true) {
-            getline(cin, message);
+            getline(wcin, message);
 
-            if (message == "exit") {
+            if (message == L"exit") {
                 closeConnection();
                 exit(0);
             }

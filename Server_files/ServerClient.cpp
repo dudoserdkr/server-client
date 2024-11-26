@@ -1,10 +1,10 @@
 #include "ServerClient.h"
 
+
 ServerClient::ServerClient(int sockfd) : sockfd(sockfd) {}
 
-void ServerClient::sendMsgToClient(int client_sockfd, char buffer[1024]) {
-    size_t bufferSize = sizeof(buffer);
-    send(client_sockfd, buffer, bufferSize, 0);
+void ServerClient::sendMsgToClient(int client_sockfd, wchar_t buffer[1024]) {
+    send(client_sockfd, buffer, BUFFER_SIZE, 0);
 }
 
 int ServerClient::acceptClient() {
@@ -22,7 +22,7 @@ int ServerClient::acceptClient() {
     return new_socket;
 }
 
-void ServerClient::sendToClientsExceptOne(vector<pollfd> fds, char buffer[1024], int index_of_excepted_user) {
+void ServerClient::sendToClientsExceptOne(vector<pollfd> fds, wchar_t buffer[1024], int index_of_excepted_user) {
     for (int i = 1; i < fds.size(); i++) {
         if (i == index_of_excepted_user) {
             continue;
@@ -31,9 +31,8 @@ void ServerClient::sendToClientsExceptOne(vector<pollfd> fds, char buffer[1024],
     }
 }
 
-int ServerClient::receiveFromClient(int client_sockfd, char buffer[1024]) {
-    size_t bufferSize = sizeof(buffer);
-    return read(client_sockfd, buffer, bufferSize);
+int ServerClient::receiveFromClient(int client_sockfd, wchar_t buffer[1024]) {
+    return read(client_sockfd, buffer, BUFFER_SIZE);
 }
 
 void ServerClient::handleError(const std::string& message, bool condition) {

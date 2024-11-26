@@ -3,10 +3,9 @@
 #include <cstring>
 #include <stdexcept>
 #include <unistd.h>
+#include <cwchar>
 
 using namespace std;
-
-
 
 // region static methods
 void *UnixSocketClient::get_in_addr(sockaddr *sa) {
@@ -95,14 +94,24 @@ void UnixSocketClient::connectToServer(const char *IP, const char *PORT) {
     this->sockfd = connect_to_server(result);
 }
 
-int UnixSocketClient::sendMessage(const string &message) {
-    return send(this->sockfd, message.c_str(), message.size(), 0);
+int UnixSocketClient::sendMessage(const wstring &message) {
+    wchar_t buffer[BUFFER_SIZE] = {0};
+    wcsncpy(buffer, message.c_str(), sizeof(buffer) / sizeof(buffer[0]) - 1); // possibly could be problematic
+    return send(this->sockfd, buffer, BUFFER_SIZE, 0);
 }
 
-int UnixSocketClient::receiveMessage(char buffer[1024], size_t buffer_size) {
-    int valread = read(this->sockfd, buffer, buffer_size); //TODO: може бути прикол з довжиною буфера
+int UnixSocketClient::receiveMessage(wchar_t buffer[BUFFER_SIZE]) {
+    int valread = recv(this->sockfd, buffer, BUFFER_SIZE * sizeof(wchar_t), 0);
+    if (valread >= 0) {
+        buffer[valread / sizeof(wchar_t)] = L'\0'; // Ensure null-termination
+    }
     return valread;
 }
+
+//int UnixSocketClient::receiveMessage(wchar_t buffer[BUFFER_SIZE]) { <- old function
+  //  int valread = read(this->sockfd, buffer, BUFFER_SIZE);
+    //return valread;
+//}
 
 UnixSocketClient::~UnixSocketClient() {
     if (this->sockfd > 0) {

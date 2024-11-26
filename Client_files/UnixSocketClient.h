@@ -4,6 +4,7 @@
 #include "SocketClient.h"
 #include <string>
 #include <netdb.h>
+#include <string>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -27,8 +28,8 @@ protected:
 
 public:
     void connectToServer(const char *IP, const char *PORT);
-    int sendMessage(const std::string &message);
-    int receiveMessage(char buffer[1024], size_t buffer_size);
+    int sendMessage(const std::wstring &message);
+    int receiveMessage(wchar_t buffer[1024]);
     ~UnixSocketClient();
 };
 

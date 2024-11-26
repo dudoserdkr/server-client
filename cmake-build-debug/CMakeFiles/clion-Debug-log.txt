@@ -1,4 +1,13 @@
 /Users/ivyurievich/Desktop/CLion.app/Contents/bin/cmake/mac/aarch64/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/Users/ivyurievich/Desktop/CLion.app/Contents/bin/ninja/mac/aarch64/ninja -G Ninja -S /Users/ivyurievich/CLionProjects/server -B /Users/ivyurievich/CLionProjects/server/cmake-build-debug
 -- Configuring done (0.0s)
--- Generating done (0.0s)
--- Build files have been written to: /Users/ivyurievich/CLionProjects/server/cmake-build-debug
+CMake Error at CMakeLists.txt:6 (add_executable):
+  Cannot find source file:
+
+    Server_files/ServerClient22.h
+
+
+CMake Error at CMakeLists.txt:6 (add_executable):
+  No SOURCES given to target: server
+
+
+CMake Generate step failed.  Build files cannot be regenerated correctly.
