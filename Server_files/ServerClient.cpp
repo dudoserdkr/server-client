@@ -22,6 +22,15 @@ int ServerClient::acceptClient() {
     return new_socket;
 }
 
+void ServerClient::sendToClientsExceptOne(vector<pollfd> fds, char buffer[1024], int index_of_excepted_user) {
+    for (int i = 1; i < fds.size(); i++) {
+        if (i == index_of_excepted_user) {
+            continue;
+        }
+        sendMsgToClient(fds[i].fd, buffer);
+    }
+}
+
 int ServerClient::receiveFromClient(int client_sockfd, char buffer[1024]) {
     size_t bufferSize = sizeof(buffer);
     return read(client_sockfd, buffer, bufferSize);
