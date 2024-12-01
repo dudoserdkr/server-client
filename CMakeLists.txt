@@ -9,6 +9,4 @@ add_executable(server
         Server_files/ServerSocket.cpp
         Server_files/ServerClient.cpp
         Server_files/Server.cpp
-        server_test.cpp
-        Client_files/client_start.cpp
-        Server_files/server_start.cpp)
+        server_test.cpp)

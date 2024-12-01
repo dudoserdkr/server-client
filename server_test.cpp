@@ -16,9 +16,10 @@ void getRandomNumberAsCharArray(int min, int max, char buffer[], size_t bufferSi
 }
 
 char PORT[20];
+int BACKLOG;
 
 void create_server() {
-    Server server("0.0.0.0", PORT, 10);
+    Server server("0.0.0.0", PORT, BACKLOG);
 }
 
 void create_client() {
@@ -34,10 +35,11 @@ int main() {
     int n;
     cout << "Enter number of clients: ";
     cin >> n;
-    n;
+    BACKLOG = n;
     while (n--) {
         clients.push_back(thread(create_client));
     }
+    cout << "BACKLOG: " << BACKLOG << endl;
 
     thread server_thread(create_server);
     server_thread.join();

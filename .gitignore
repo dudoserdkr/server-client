@@ -27,3 +27,4 @@ Makefile
 
 # Ignore test executable
 test
+/build
