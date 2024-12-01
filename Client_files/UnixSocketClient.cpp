@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <cwchar>
 
+
 using namespace std;
 
 // region static methods
@@ -96,22 +97,17 @@ void UnixSocketClient::connectToServer(const char *IP, const char *PORT) {
 
 int UnixSocketClient::sendMessage(const wstring &message) {
     wchar_t buffer[BUFFER_SIZE] = {0};
-    wcsncpy(buffer, message.c_str(), sizeof(buffer) / sizeof(buffer[0]) - 1); // possibly could be problematic
+    wcsncpy(buffer, message.c_str(), sizeof(buffer) / sizeof(buffer[0]) - 1);
     return send(this->sockfd, buffer, BUFFER_SIZE, 0);
 }
 
 int UnixSocketClient::receiveMessage(wchar_t buffer[BUFFER_SIZE]) {
     int valread = recv(this->sockfd, buffer, BUFFER_SIZE * sizeof(wchar_t), 0);
     if (valread >= 0) {
-        buffer[valread / sizeof(wchar_t)] = L'\0'; // Ensure null-termination
+        buffer[valread / sizeof(wchar_t)] = L'\0';
     }
     return valread;
 }
-
-//int UnixSocketClient::receiveMessage(wchar_t buffer[BUFFER_SIZE]) { <- old function
-  //  int valread = read(this->sockfd, buffer, BUFFER_SIZE);
-    //return valread;
-//}
 
 UnixSocketClient::~UnixSocketClient() {
     if (this->sockfd > 0) {

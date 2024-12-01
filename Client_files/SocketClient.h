@@ -2,7 +2,9 @@
 #define SOCKETCLIENT_H
 #include <string>
 
-const size_t BUFFER_SIZE = 1024;
+#ifndef BUFFER_SIZE
+#define BUFFER_SIZE 1024
+#endif
 
 class SocketClient {
 public:

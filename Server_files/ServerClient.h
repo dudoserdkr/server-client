@@ -8,7 +8,9 @@
 #include <cwchar>
 #include <cerrno>
 
-const size_t BUFFER_SIZE = 1024;
+#ifndef BUFFER_SIZE
+#define BUFFER_SIZE 1024
+#endif
 
 class ServerClient {
     int sockfd;

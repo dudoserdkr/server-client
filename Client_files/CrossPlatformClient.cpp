@@ -1,104 +1,76 @@
-#include "UnixSocketClient.h"
-#include <string>
-#include <iostream>
-#include <thread>
-#include <functional>
+#include "CrossPlatformClient.h"
 
-using namespace std;
+CrossPlatformClient::CrossPlatformClient(SocketClient *c, const char *IP, const char *PORT) : client(c), IP(IP), PORT(PORT) {
+    connectToServer();
+    initSockfd();
+    start();
+}
 
-class CrossPlatformClient {
-    SocketClient *client;
+void CrossPlatformClient::connectToServer() {
+    client->connectToServer(this->IP, this->PORT);
+}
 
-    int sockfd;
-    const char *IP;
-    const char *PORT;
+void CrossPlatformClient::initSockfd() {
+    this->sockfd = client->getSocket();
+}
 
-public:
-    CrossPlatformClient(SocketClient *c, const char *IP, const char *PORT) : client(c), IP(IP), PORT(PORT) {
-        connectToServer();
-        initSockfd();
-        start();
+void CrossPlatformClient::sendToServer(wstring &message) {
+    client->sendMessage(message);
+}
+
+void CrossPlatformClient::receiveFromServer() {
+    wchar_t buffer[BUFFER_SIZE] = {0};
+
+    int valread = client->receiveMessage(buffer);
+
+    if (valread == 0) {
+        cout << "Connection closed" << endl;
+        closeConnection();
+        exit(0);
+    } else {
+        wcout << buffer << endl;
     }
+}
 
-    void connectToServer() {
-        client->connectToServer(this->IP, this->PORT);
-    }
+void CrossPlatformClient::sendHandler() {
 
-    void initSockfd() {
-        this->sockfd = client->getSocket();
-    }
+    while (true) {
+        wstring message = L"";
+        getline(wcin, message);
 
-    void sendToServer(wstring &message) {
-        client->sendMessage(message);
-    }
-
-    void receiveFromServer() {
-        wchar_t buffer[BUFFER_SIZE] = {0};
-
-        int valread = client->receiveMessage(buffer);
-
-        if (valread == 0) {
-            cout << "Connection closed" << endl;
+        if (message == L"exit") {
             closeConnection();
             exit(0);
-        } else {
-            wcout << L"Received from server: " << buffer << endl;
+        }
+
+        if (!message.empty()) {
+            sendToServer(message);
         }
     }
+}
 
-    // region Handlers
-    void sendHandler() {
-        wstring message;
-        while (true) {
-            getline(wcin, message);
-
-            if (message == L"exit") {
-                closeConnection();
-                exit(0);
-            }
-
-            if (!message.empty()) {
-                sendToServer(message);
-            }
-        }
+void CrossPlatformClient::receiveHandler() {
+    while (true) {
+        receiveFromServer();
     }
+}
 
-    void receiveHandler() {
-        while (true) {
-            receiveFromServer();
-        }
+void CrossPlatformClient::closeConnection() {
+    if (this->sockfd > 0) {
+        close(this->sockfd);
     }
-    // endregion
+}
 
-    void closeConnection() {
-        if (this->sockfd > 0) {
-            close(this->sockfd);
-        }
+void CrossPlatformClient::start() {
+    thread thread1(bind(&CrossPlatformClient::sendHandler, this));
+    thread thread2(bind(&CrossPlatformClient::receiveHandler, this));
+
+    thread1.join();
+    thread2.join();
+}
+
+CrossPlatformClient::~CrossPlatformClient() {
+    if (this->sockfd > 0) {
+        close(this->sockfd);
     }
-
-    void start() {
-        thread thread1(bind(&CrossPlatformClient::sendHandler, this));
-        thread thread2(bind(&CrossPlatformClient::receiveHandler, this));
-
-        thread1.join();
-        thread2.join();
-    }
-
-    ~CrossPlatformClient() {
-        if (this->sockfd > 0) {
-            close(this->sockfd);
-        }
-    }
-};
-
-int main(int argc, char *argv[]) {
-    if (argc != 3) {
-        const char *IP = "0.0.0.0";
-        const char *PORT = "1701";
-    }
-
-    const char *IP = argv[1];
-    const char *PORT = argv[2];
-
-    CrossPlatformClient client(new UnixSocketClient(), IP, PORT);
 }

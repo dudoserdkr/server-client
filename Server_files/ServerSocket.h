@@ -11,6 +11,8 @@
 using namespace std;
 
 class ServerSocket {
+public:
+
     int sockfd{};
     const int backlog;
     const char *IP;
@@ -24,7 +26,7 @@ class ServerSocket {
     void print_bound_adress(string message = "Server socket is bound to") const;
     static void sigchld_handler(int s);
     static void kill_needless_processes();
-public:
+    //
     ServerSocket(const char* IP, const char* PORT, const int backlog);
     ~ServerSocket();
     int runSocket();
